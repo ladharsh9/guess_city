@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Guess Word</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.js">
+	</script>
+	
+	<style>
+		body{background-color: rgb(66, 148, 255);
+		font-size: 25px;
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+		.table{height: 500px;
+		width: 800px;
+		margin-top: 50px;
+	background-color: rgb(253, 77, 61);}
+	.button {
+  background-color: #04AA6D; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  -webkit-transition-duration: 0.4s; 
+  transition-duration: 0.4s;
+}
+.button:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+		
+	</style>
+</head>
+<body ng-app="myapp" ng-controller="ctrl">
+
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+		  <div class="navbar-header">
+			
+		  </div>
+		  <ul class="nav navbar-nav">
+			<li class="active"><a href="#!null">Home</a></li>
+			<li ><a href="#!me">About me</a></li>
+			<li><a href="#!contact">Contact us</a></li>
+			
+		  </ul>
+		</div>
+	  </nav>
+
+	
+	<div ng-view></div>
+	<table class="table" align="center"><tr><td colspan="2"><h1 style="text-align: center;">🔎Guess the Word Game</h1><p style="text-align: center;">Below given a city name, you have given 6 chances, try it if you can..</p></td></tr>
+		<tr><td colspan="2"align="center">
+	<div>
+		Guesses Left➡️ {{guesses}}
+		
+	</div></td></tr>
+	
+	<tr><td>
+	
+		<div>
+			✔️Correct Letters: <span ng-repeat="letter in correctLettersChosen">{{letter}}</span>
+		</div></td>
+		<td>
+		<div>
+			✖️Incorrect Letters: <span ng-repeat="letter in incorrectLettersChosen">{{letter}}</span>
+		</div></td></tr>
+		<tr>
+			<td colspan="2" align="center">
+	
+	<div style="font-size: 25px;">{{displayWord}}</div></td></tr>
+	<tr><td colspan="2" align="center">
+	<div>
+		
+		
+		<input type="text" name="guess" ng-model="input.letter" ng-minlength="1" ng-maxlength="1" ng-pattern="/^[A-Za-z]+$/" style="width: 250px; height: 50px; font-size: 25px;"></td></tr>
+		<tr><td colspan="2" align="center"><button ng-click="letterChosen()" class="button">CHECK</button></td></tr>
+	</div>
+	</table>
+	<script>
+		
+	var app = angular.module("myapp",["ngRoute"]);
+	app.config(function ($routeProvider) {
+			$routeProvider
+			.when("/null", {
+					template: ``
+				})
+				.when("/me", {
+					template: `<span> Welcome, I am Harsh Lad, IT Engineering student..</span>`
+				})
+				.when("/contact", {
+					template: `<span>
+						<ul type="square">
+						
+						<li>Email id: harshbot10@gmail.com</li>
+						<li>Address: Daman,India</li>
+						</ul></span>`
+				});});
+app.controller("ctrl",['$scope','$timeout',function($scope,$timeout){
+	var words=["Surat","Rajkot","Ahmedabad","Daman"];
+	$scope.incorrectLettersChosen=[];
+	$scope.correctLettersChosen=[];
+	var selectedWord='';
+	$scope.guesses=6;
+	$scope.displayWord='';
+	$scope.input = {
+		letter: ''
+	};
+	var selectRandomWord = function() {
+		var index = Math.round(Math.random()*words.length);
+		return words[index];
+	}
+	var newGame = function() {
+		$scope.incorrectLettersChosen = [];
+		$scope.correctLettersChosen=[];
+		$scope.guesses=6;
+		$scope.displayWord="";
+		selectedWord=selectRandomWord();
+		var tempDisplayWord='';
+		for(var i=0;i<selectedWord.length;i++) {
+			tempDisplayWord+='*';
+		}
+		$scope.displayWord=tempDisplayWord;
+		// Random word selection.
+	}
+	$scope.letterChosen = function() {
+		// Check if $scope.input.letter is a single letter and an alphabet and not an already chosen letter.
+		// Check if its correct.
+		for(var i=0;i<$scope.correctLettersChosen.length;i++) {
+			if($scope.correctLettersChosen[i].toUpperCase()==$scope.input.letter.toUpperCase()) {
+				$scope.input.letter="";
+				return;
+			}
+		}
+		for(var i=0;i<$scope.incorrectLettersChosen.length;i++) {
+			if($scope.incorrectLettersChosen[i].toUpperCase()==$scope.input.letter.toUpperCase()) {
+				$scope.input.letter="";
+				return;
+			}
+		}
+		var correct=false;
+		for(var i=0;i<selectedWord.length;i++) {
+			if(selectedWord[i].toLowerCase()==$scope.input.letter.toLowerCase()) {
+				$scope.displayWord=$scope.displayWord.slice(0,i)+$scope.input.letter.toUpperCase()+$scope.displayWord.slice(i+1);
+				correct=true;
+			}
+		}
+		if(correct) {
+			$scope.correctLettersChosen.push($scope.input.letter.toUpperCase());
+		} else {
+			$scope.guesses--;
+			$scope.incorrectLettersChosen.push($scope.input.letter.toUpperCase());
+		}
+		$scope.input.letter="";
+		if($scope.guesses==0) {
+			// You Lose
+			$timeout(function() {
+				newGame();
+				alert("OOPS..You Lost");
+			},500);
+		}
+		if($scope.displayWord.indexOf("*")==-1) {
+			// Show score
+			$timeout(function() {
+				newGame();
+				alert("Congratulations..You won..!!");
+			},500);
+		}
+	}
+	newGame();
+}]);
+	</script>
+</body>
+</html>
